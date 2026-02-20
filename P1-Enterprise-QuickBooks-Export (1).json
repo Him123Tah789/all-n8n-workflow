@@ -1,0 +1,906 @@
+{
+  "name": "P1-Enterprise-QuickBooks-Export",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -16
+      ],
+      "id": "ebc1e66e-2ce4-4460-b3eb-570ecbb404a1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "=https://docs.google.com/spreadsheets/d/1Lh_g29JnY10ztbFZ3cqcK7Y-3_kmyd8xEXcgvYvKYec/edit?usp=drivesdk\n",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1954284415,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Lh_g29JnY10ztbFZ3cqcK7Y-3_kmyd8xEXcgvYvKYec/edit#gid=1954284415"
+        },
+        "options": {}
+      },
+      "name": "Read Sheet Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "35f6f67a-a720-4f7c-98ba-91ef28ebf5b7",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\n\nlet cleaningDone = 0;\nlet carpetDone = 0;\n\nrows.forEach(r => {\n  if ([true, \"TRUE\", \"true\"].includes(r[\"Cleaning Complete\"])) cleaningDone++;\n  if ([true, \"TRUE\", \"true\"].includes(r[\"Carpet Cleaned\"])) carpetDone++;\n});\n\nreturn [{\n  json: {\n    date: new Date().toISOString().slice(0,10),\n    totalUnits: rows.length,\n    cleaningDone,\n    carpetDone,\n    units: rows\n  }\n}];"
+      },
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        -32
+      ],
+      "id": "360a23af-f272-45cd-bf49-73fbe8ff254a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\n\nconst pie1 = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: 'pie',\n  data: {\n    labels: ['Cleaning Done', 'Pending'],\n    datasets: [{ data: [d.cleaningDone, d.totalUnits - d.cleaningDone] }]\n  }\n}))}`;\n\nconst pie2 = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: 'pie',\n  data: {\n    labels: ['Carpet Cleaned', 'Pending'],\n    datasets: [{ data: [d.carpetDone, d.totalUnits - d.carpetDone] }]\n  }\n}))}`;\n\nreturn [{ json: { ...d, pie1, pie2 } }];"
+      },
+      "name": "Generate Charts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -32
+      ],
+      "id": "72c97c20-4a46-4ce9-b452-8b05c1fbdf43"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $json;\n\nconst html = `\n<html>\n<head>\n<style>\nbody { font-family: Arial; padding: 20px; }\ntable { border-collapse: collapse; width: 100%; }\nth, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }\nth { background: #f4f4f4; }\n</style>\n</head>\n<body>\n<h2>Daily Report – Pilot Site</h2>\n<b>Date:</b> ${r.date}<br/><br/>\n\n<b>Total Units:</b> ${r.totalUnits}<br/>\n<b>Cleaning Done:</b> ${r.cleaningDone}<br/>\n<b>Carpet Cleaned:</b> ${r.carpetDone}<br/><br/>\n\n<img src=\"${r.pie1}\" width=\"300\" />\n<img src=\"${r.pie2}\" width=\"300\" />\n\n<h3>Unit Details</h3>\n<table>\n<tr><th>Unit</th><th>Cleaning</th><th>Carpet</th></tr>\n${r.units.map(u => `\n<tr>\n<td>${u.Unit || '-'}</td>\n<td>${u['Cleaning Complete']}</td>\n<td>${u['Carpet Cleaned']}</td>\n</tr>`).join('')}\n</table>\n</body>\n</html>`;\n\nreturn [{ json: { html, date: r.date } }];"
+      },
+      "name": "Build HTML Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -32
+      ],
+      "id": "0991e317-199d-4cde-b35b-db911b2e90dc"
+    },
+    {
+      "parameters": {
+        "mode": "jsonToBinary",
+        "options": {}
+      },
+      "name": "HTML to File",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        -32
+      ],
+      "id": "5cbf7f78-24f0-44d5-bd48-7b48f3b2dd61"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1296,
+        -32
+      ],
+      "id": "6f734139-b6bd-472f-a997-c71d253ba48d",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "lhZwbVssEWL3I04s",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "himeltahsib2@gmail.com",
+        "subject": "=={{`Daily Report - ${$json.date || new Date().toISOString().slice(0,10)}`}}\n",
+        "message": "=<h3>Daily Report Ready</h3> <p><b>Date:</b> {{ $json.date || $now.toISODate() }}</p>\n <p>   <a href=\"{{$node['Upload to Drive'].json['webViewLink']}}\">     View Report in Google Drive   </a> </p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        -144
+      ],
+      "id": "5f9193fb-22e7-4995-93ca-5d690a2e96ae",
+      "name": "Send a message",
+      "webhookId": "f6bac69d-957d-4036-82fa-ab627c0b1998",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// DEFINE YOUR SITES HERE\nconst sites = [\n  { siteId: \"PILOT_01\", siteName: \"Pilot Site 1\" },\n  { siteId: \"PILOT_02\", siteName: \"Pilot Site 2\" }\n];\n\nreturn sites.map(s => ({ json: s }));"
+      },
+      "name": "Get Sites",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -16
+      ],
+      "id": "5344e17d-8b0b-4a49-a6c7-40fc97add7f5"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Split in Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -16
+      ],
+      "id": "3c1ddc2c-1fbe-478a-8e45-07f171fc5cc7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const batch = $node[\"Split in Batches\"].json;\n\n// Accept either siteId or Site (in case naming differs)\nconst currentSiteId = (batch.siteId ?? batch.Site ?? \"\").toString().trim();\n\nconst all = $input.all().map(i => i.json);\n\n// Debug counts (you can see these in node output if needed)\nconst rows = all.filter(r => (r.Site ?? \"\").toString().trim() === currentSiteId);\n\nif (!currentSiteId) {\n  return [{ json: { error: \"Missing siteId from Split in Batches\", batch } }];\n}\n\nif (rows.length === 0) {\n  // Return a single item so workflow doesn't stop, and you can handle it later\n  return [{ json: { siteId: currentSiteId, noData: true, totalRows: all.length } }];\n}\n\n// Return rows as individual items (normal path)\nreturn rows.map(r => ({ json: r }));\n"
+      },
+      "name": "Filter Rows by Site",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "819869a0-06f0-4737-9663-12a9344235ee"
+    },
+    {
+      "parameters": {
+        "jsCode": "const siteName = $node[\"Split in Batches\"].json.siteName;\nconst siteId = $node[\"Split in Batches\"].json.siteId;\nconst date = $node[\"Build HTML Report\"].json.date;\nconst link = $node[\"Upload to Drive\"].json.webViewLink;\n\nreturn [\n  {\n    json: {\n      role: \"MANAGER\",\n      to: \"managers@company.com\",\n      subject: `Daily Report – ${siteName} – ${date}`,\n      html: `<h3>Daily Manager Report</h3><p><b>Site:</b> ${siteName}</p><p><b>Date:</b> ${date}</p><p><a href=\"${link}\">View Full Report</a></p><p>Please review and flag discrepancies within 24–48 hours.</p>`\n    }\n  },\n  {\n    json: {\n      role: \"CLEANER\",\n      to: \"cleaners@company.com\",\n      subject: `Daily Cleaning Summary – ${siteName} – ${date}`,\n      html: `<h3>Daily Cleaning Summary</h3><p><b>Site:</b> ${siteName}</p><p><b>Date:</b> ${date}</p><p><a href=\"${link}\">View Cleaning Details</a></p>`\n    }\n  },\n  {\n    json: {\n      role: \"CARPET\",\n      to: \"carpet@company.com\",\n      subject: `Daily Carpet Report – ${siteName} – ${date}`,\n      html: `<h3>Daily Carpet Cleaning Report</h3><p><b>Site:</b> ${siteName}</p><p><b>Date:</b> ${date}</p><p><a href=\"${link}\">View Carpet Details</a></p>`\n    }\n  }\n];"
+      },
+      "name": "Build Stakeholder Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        48
+      ],
+      "id": "ec8bce4c-a8ea-4111-8d3b-c5981af8473f"
+    },
+    {
+      "parameters": {
+        "subject": "={{$json.subject}}",
+        "message": "={{$json.html}}",
+        "options": {}
+      },
+      "name": "Send Stakeholder Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        32
+      ],
+      "id": "880d473d-946a-491e-aa8d-79712f775fde",
+      "webhookId": "8cdc1b84-df3a-4529-b774-1fbc4371928a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.noData}}",
+              "operation": "isEmpty"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check Site Has Data",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        48
+      ],
+      "id": "00aa5f87-928a-47c8-9784-406d22f0aeec"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Split in Batches (Sites)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        560,
+        864
+      ],
+      "id": "f6828581-26f9-47bb-8884-64fd71ea2325"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM",
+          "mode": "list",
+          "cachedResultName": "Report Interface Example",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1403495474,
+          "mode": "list",
+          "cachedResultName": "sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM/edit#gid=1403495474"
+        },
+        "options": {}
+      },
+      "name": "Read Units Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        704,
+        864
+      ],
+      "id": "c3eec118-e3bd-4db1-96fa-eebdb96f4f09",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst meta = items[0]?._meta ?? {};\n\n// Today in YYYY-MM-DD\nconst now = new Date();\nconst yyyy = now.getFullYear();\nconst mm = String(now.getMonth() + 1).padStart(2, \"0\");\nconst dd = String(now.getDate()).padStart(2, \"0\");\nconst todayStr = `${yyyy}-${mm}-${dd}`;\n\n// --- helpers ---\nfunction isTrue(v) {\n  if (v === true) return true;\n  if (v === false) return false;\n  const s = String(v ?? \"\").trim().toLowerCase();\n  return [\"true\", \"yes\", \"y\", \"1\", \"checked\", \"on\", \"done\", \"complete\", \"completed\"].includes(s);\n}\n\nfunction normDate(v) {\n  if (v === null || v === undefined) return \"\";\n  const s = String(v).trim();\n  if (!s || s.toLowerCase() === \"empty\") return \"\";\n  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) return s;\n\n  const d = new Date(s);\n  if (isNaN(d.getTime())) return \"\";\n  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, \"0\")}-${String(d.getDate()).padStart(2, \"0\")}`;\n}\n\nconst totalUnits = items.length;\n\n// ✅ To-date is based on TRUE/FALSE checkboxes (for pie charts)\nlet cleanedToDateUnique = 0;\nlet carpetToDateUnique = 0;\n\n// ✅ Today uses date fields (accurate)\nlet cleanedTodayUnique = 0;\nlet carpetTodayUnique = 0;\n\n// ✅ During project: with your current sheet, best proxy is checkbox TRUE count\nlet cleanedDuringProjectCount = 0;\nlet carpetDuringProjectCount = 0;\n\nconst cleanedTodayByType = {};\nconst carpetTodayByType = {};\n\nconst unitList = items.map(r => ({\n  unit: r.Unit ?? \"-\",\n  unitType: r[\"Unit Type\"] ?? \"-\"\n}));\n\nfor (const r of items) {\n  const utype = String(r[\"Unit Type\"] ?? \"-\");\n\n  const cleaningComplete = isTrue(r[\"Cleaning Complete\"]);\n  const carpetComplete = isTrue(r[\"Carpet Cleaned\"]);\n\n  const dateCleaned = normDate(r[\"Date Cleaned\"]);\n  const dateCarpet = normDate(r[\"Date Carpet Cleaned\"]);\n\n  // ---- To-date (unique) ----\n  if (cleaningComplete) cleanedToDateUnique += 1;\n  if (carpetComplete) carpetToDateUnique += 1;\n\n  // ---- During project (proxy) ----\n  if (cleaningComplete) cleanedDuringProjectCount += 1;\n  if (carpetComplete) carpetDuringProjectCount += 1;\n\n  // ---- Today (unique) ----\n  // Only count today if date is actually today\n  const cleanedToday = dateCleaned === todayStr;\n  const carpetToday = dateCarpet === todayStr;\n\n  if (cleanedToday) {\n    cleanedTodayUnique += 1;\n    cleanedTodayByType[utype] = (cleanedTodayByType[utype] ?? 0) + 1;\n  }\n  if (carpetToday) {\n    carpetTodayUnique += 1;\n    carpetTodayByType[utype] = (carpetTodayByType[utype] ?? 0) + 1;\n  }\n}\n\nconst remainingCleaning = Math.max(0, totalUnits - cleanedToDateUnique);\nconst remainingCarpet = Math.max(0, totalUnits - carpetToDateUnique);\n\n// ✅ Pie charts reflect TRUE/FALSE checkbox completion\nconst cleaningPie = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: \"pie\",\n  data: {\n    labels: [\"TRUE (Cleaning Complete)\", \"FALSE (Not Complete)\"],\n    datasets: [{ data: [cleanedToDateUnique, totalUnits - cleanedToDateUnique] }]\n  }\n}))}`;\n\nconst carpetPie = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: \"pie\",\n  data: {\n    labels: [\"TRUE (Carpet Cleaned)\", \"FALSE (Not Carpet Cleaned)\"],\n    datasets: [{ data: [carpetToDateUnique, totalUnits - carpetToDateUnique] }]\n  }\n}))}`;\n\nfunction breakdownText(obj) {\n  const entries = Object.entries(obj);\n  if (entries.length === 0) return \"None\";\n  return entries.map(([k, v]) => `${v} ${k}`).join(\", \");\n}\n\nreturn [{\n  json: {\n    _meta: meta,\n    date: todayStr,\n    totalUnits,\n\n    cleanedTodayUnique,\n    carpetTodayUnique,\n\n    cleanedToDateUnique,\n    carpetToDateUnique,\n\n    remainingCleaning,\n    remainingCarpet,\n\n    cleanedDuringProjectCount,\n    carpetDuringProjectCount,\n\n    cleanedTodayBreakdown: breakdownText(cleanedTodayByType),\n    carpetTodayBreakdown: breakdownText(carpetTodayByType),\n\n    cleaningPie,\n    carpetPie,\n\n    unitList\n  }\n}];\n"
+      },
+      "name": "Compute Daily Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        864
+      ],
+      "id": "9adf2049-fee0-4c4b-92df-ad92d58bdf9a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $json;\n\nconst siteName = r._meta?.siteName ?? \"Unknown Site\";\nconst siteId   = r._meta?.siteId ?? \"UNKNOWN\";\n\nconst weekStart = r.weekStart ?? \"\";\nconst weekEnd   = r.weekEnd ?? \"\";\n\n// ✅ Put management email here\nconst TO = \"cleanmovesmanagement@company.com\";\n\nconst discrepancyNote = \"Please review and flag any discrepancies within 24–48 hours.\";\n\nfunction safe(n) {\n  const x = Number(n);\n  return Number.isFinite(x) ? x : 0;\n}\n\nfunction money(n) {\n  return safe(n).toFixed(2);\n}\n\nfunction unitTable(list) {\n  const rows = Array.isArray(list) ? list : [];\n  const body = rows.map(u => `\n    <tr>\n      <td style=\"border:1px solid #ddd;padding:6px;\">${u.unit ?? \"-\"}</td>\n      <td style=\"border:1px solid #ddd;padding:6px;\">${u.unitType ?? \"-\"}</td>\n    </tr>\n  `).join(\"\");\n\n  return `\n  <table style=\"border-collapse:collapse;font-family:Arial;font-size:12px;width:100%;border:1px solid #ddd;\">\n    <thead>\n      <tr style=\"background:#f2f2f2;\">\n        <th style=\"border:1px solid #ddd;padding:6px;text-align:left;\">Unit</th>\n        <th style=\"border:1px solid #ddd;padding:6px;text-align:left;\">Unit Type</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${body || `<tr><td style=\"border:1px solid #ddd;padding:6px;\">-</td><td style=\"border:1px solid #ddd;padding:6px;\">-</td></tr>`}\n    </tbody>\n  </table>`;\n}\n\nconst weeklyHtml = `\n<h3>Weekly Report — Clean Moves Management</h3>\n<p><b>Site:</b> ${siteName} (${siteId})<br/>\n<b>Week:</b> ${weekStart} to ${weekEnd}</p>\n<p>${discrepancyNote}</p>\n\n<ul>\n  <li><b>Total number cleaned that week:</b> ${safe(r.cleanedThatWeek)}</li>\n  <li><b>Total number cleaned during project:</b> ${safe(r.cleanedDuringProject)}</li>\n  <li><b>Number of units remaining:</b> ${safe(r.remainingUnits)}</li>\n  <li><b>Unit-type breakdown (this week):</b> ${r.cleanedWeekBreakdown ?? \"None\"}</li>\n</ul>\n\n<h4>Additional charges recorded (this week)</h4>\n<ul>\n  <li><b>Excessive Cleaning Fee (Cleaner Cost):</b> $${money(r.feeCleanerCostWeek)}</li>\n  <li><b>Excessive Cleaning Fee (Property Charge):</b> $${money(r.feePropertyChargeWeek)}</li>\n</ul>\n\n<p><b>Unit List</b></p>\n${unitTable(r.unitList)}\n`;\n\nreturn [\n  {\n    json: {\n      role: \"WEEKLY_MANAGEMENT\",\n      to: TO,\n      subject: `Weekly Cleaning Report – ${siteName} – ${weekStart} to ${weekEnd}`,\n      html: weeklyHtml\n    }\n  }\n];\n"
+      },
+      "name": "Build 3 Stakeholder Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        864
+      ],
+      "id": "935c9b53-7365-45bd-9437-d200045a4f60"
+    },
+    {
+      "parameters": {
+        "sendTo": "himeltahsib2@gmail.com",
+        "subject": "={{$json.subject}}",
+        "message": "={{$json.html}}",
+        "options": {}
+      },
+      "name": "Gmail Send",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        864
+      ],
+      "id": "90054cef-f8b8-489f-bc81-b8b9da1a149c",
+      "webhookId": "2269ed14-171b-4014-940e-413fe6e3969e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sites = [\n  { siteId: \"PILOT_01\", siteName: \"Pilot Site 1\" },\n  { siteId: \"PILOT_02\", siteName: \"Pilot Site 2\" }\n];\nreturn sites.map(s => ({ json: s }));"
+      },
+      "name": "Get Sites1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        864
+      ],
+      "id": "0114fc29-a410-4954-98d9-12919f32bcc9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Get current site from Split in Batches node\nconst site = $node[\"Split in Batches (Sites)\"].json;\nconst siteId = (site.siteId ?? site.Site ?? \"\").toString().trim();\n\n// 2) Read all rows from previous node (Google Sheets)\nconst rows = $input.all().map(i => i.json);\n\n// Helpers\nfunction cleanKey(s) {\n  return String(s ?? \"\").toLowerCase().replace(/\\s+/g, \" \").trim();\n}\n\nfunction pickKey(row, wanted) {\n  const keys = Object.keys(row || {});\n  const w = cleanKey(wanted);\n  return keys.find(k => cleanKey(k) === w) || null;\n}\n\nfunction toBool(v) {\n  if (v === true) return true;\n  if (v === false) return false;\n  const s = String(v ?? \"\").trim().toLowerCase();\n  if ([\"true\",\"yes\",\"y\",\"1\",\"checked\",\"on\",\"done\",\"complete\",\"completed\"].includes(s)) return true;\n  if ([\"false\",\"no\",\"n\",\"0\",\"unchecked\",\"off\",\"pending\",\"\",\"empty\"].includes(s)) return false;\n  return false;\n}\n\n// ✅ Weekly window (Mon 00:00 -> next Mon 00:00)\n// We'll store as YYYY-MM-DD strings in _meta so your weekly metrics node can use it.\nconst now = new Date();\nconst day = now.getDay(); // Sun=0..Sat=6\nconst diffToMonday = (day === 0 ? -6 : 1) - day;\n\nconst weekStart = new Date(now);\nweekStart.setDate(now.getDate() + diffToMonday);\nweekStart.setHours(0, 0, 0, 0);\n\nconst weekEnd = new Date(weekStart);\nweekEnd.setDate(weekStart.getDate() + 7);\nweekEnd.setHours(0, 0, 0, 0);\n\nconst weekStartStr = weekStart.toISOString().slice(0, 10);\nconst weekEndStr = weekEnd.toISOString().slice(0, 10);\n\n// Validate siteId\nif (!siteId) {\n  return [{ json: { _meta: { type: \"ERROR\", reason: \"Missing siteId\" }, site } }];\n}\n\n// Detect if sheet has a Site column\nconst sample = rows[0] || {};\nconst kSite = pickKey(sample, \"Site\"); // null if not present\n\n// ✅ If there is no Site column, do NOT filter (pilot sheet)\nconst scopedRows = kSite\n  ? rows.filter(r => String(r[kSite] ?? \"\").trim() === siteId)\n  : rows;\n\n// Normalize boolean fields\nconst normalized = scopedRows.map(r => ({\n  ...r,\n  \"Cleaning Complete\": toBool(r[\"Cleaning Complete\"]),\n  \"Carpet Cleaned\": toBool(r[\"Carpet Cleaned\"]),\n}));\n\nif (normalized.length === 0) {\n  return [{\n    json: {\n      _meta: {\n        type: \"NODATA\",\n        siteId,\n        siteName: site.siteName ?? siteId,\n        weekStart: weekStartStr,\n        weekEnd: weekEndStr\n      },\n      totalRows: rows.length\n    }\n  }];\n}\n\n// Output each row with weekly meta\nreturn normalized.map(r => ({\n  json: {\n    ...r,\n    _meta: {\n      type: \"DATA\",\n      siteId,\n      siteName: site.siteName ?? siteId,\n      weekStart: weekStartStr,\n      weekEnd: weekEndStr\n    }\n  }\n}));\n"
+      },
+      "name": "Filter Rows by Site1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        864
+      ],
+      "id": "b8eee215-265e-4d2a-8426-d05a99407914"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "name": "Daily Trigger (8PM)1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        224,
+        1296
+      ],
+      "id": "2dedcf16-98d3-4e7a-a0ff-1435cd5575ec"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM",
+          "mode": "list",
+          "cachedResultName": "Report Interface Example",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1403495474,
+          "mode": "list",
+          "cachedResultName": "sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10g2BAtAEDhpaQVrfpOM4GmMfrl2vNJC9ZEwQgHdd_lM/edit#gid=1403495474"
+        },
+        "options": {}
+      },
+      "name": "Read Units Sheet1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        640,
+        1296
+      ],
+      "id": "c8536cf0-374f-43fe-ab33-87a0802f4ae3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst meta = items[0]?._meta ?? {};\n\nconst now = new Date();\nconst todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;\n\nfunction isTrue(v) {\n  if (v === true) return true;\n  if (v === false) return false;\n  const s = String(v ?? \"\").trim().toLowerCase();\n  return [\"true\",\"yes\",\"y\",\"1\",\"checked\",\"on\",\"done\",\"complete\",\"completed\"].includes(s);\n}\n\nfunction normDate(v) {\n  if (v === null || v === undefined) return \"\";\n  const s = String(v).trim();\n  if (!s || s.toLowerCase() === \"empty\") return \"\";\n  const d = new Date(s);\n  if (isNaN(d.getTime())) return \"\";\n  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;\n}\n\nfunction cleaningEvents(row) {\n  const d1 = normDate(row[\"Date Cleaned\"]);\n  const d2 = normDate(row[\"Second Cleaning, IF applicable\"]);\n  return [d1, d2].filter(Boolean);\n}\n\nfunction carpetEvents(row) {\n  const d1 = normDate(row[\"Date Carpet Cleaned\"]);\n  const d2 = normDate(row[\"Second Carpet Cleaning, If applicable\"]);\n  return [d1, d2].filter(Boolean);\n}\n\nconst totalUnits = items.length;\n\nlet cleanedToDateUnique = 0;\nlet carpetToDateUnique = 0;\n\nlet cleanedTodayUnique = 0;\nlet carpetTodayUnique = 0;\n\nlet cleanedDuringProjectCount = 0;\nlet carpetDuringProjectCount = 0;\n\nlet cleaningTrue = 0, cleaningFalse = 0;\nlet carpetTrue = 0, carpetFalse = 0;\n\nconst cleanedTodayByType = {};\nconst carpetTodayByType = {};\n\nconst unitList = items.map(r => ({\n  unit: r.Unit ?? \"-\",\n  unitType: r[\"Unit Type\"] ?? \"-\"\n}));\n\nfor (const r of items) {\n  const utype = (r[\"Unit Type\"] ?? \"-\").toString();\n\n  const cleaningComplete = isTrue(r[\"Cleaning Complete\"]);\n  const carpetComplete = isTrue(r[\"Carpet Cleaned\"]);\n\n  // Pie + To-date (checkbox based)\n  if (cleaningComplete) { cleaningTrue++; cleanedToDateUnique++; }\n  else cleaningFalse++;\n\n  if (carpetComplete) { carpetTrue++; carpetToDateUnique++; }\n  else carpetFalse++;\n\n  // Event counts (date based)\n  const ce = cleaningEvents(r);\n  const cpe = carpetEvents(r);\n\n  cleanedDuringProjectCount += ce.length;\n  carpetDuringProjectCount += cpe.length;\n\n  // Today (date based)\n  const cleanedToday = ce.includes(todayStr);\n  const carpetToday = cpe.includes(todayStr);\n\n  if (cleanedToday) {\n    cleanedTodayUnique++;\n    cleanedTodayByType[utype] = (cleanedTodayByType[utype] ?? 0) + 1;\n  }\n  if (carpetToday) {\n    carpetTodayUnique++;\n    carpetTodayByType[utype] = (carpetTodayByType[utype] ?? 0) + 1;\n  }\n}\n\nconst remainingCleaning = Math.max(0, totalUnits - cleanedToDateUnique);\nconst remainingCarpet = Math.max(0, totalUnits - carpetToDateUnique);\n\nconst cleaningPie = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: \"pie\",\n  data: { labels: [\"TRUE (Done)\", \"FALSE (Not Done)\"], datasets: [{ data: [cleaningTrue, cleaningFalse] }] }\n}))}`;\n\nconst carpetPie = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({\n  type: \"pie\",\n  data: { labels: [\"TRUE (Done)\", \"FALSE (Not Done)\"], datasets: [{ data: [carpetTrue, carpetFalse] }] }\n}))}`;\n\nfunction breakdownText(obj) {\n  const entries = Object.entries(obj);\n  if (entries.length === 0) return \"None\";\n  return entries.map(([k,v]) => `${v} ${k}`).join(\", \");\n}\n\nreturn [{\n  json: {\n    _meta: meta,\n    date: todayStr,\n    totalUnits,\n\n    cleanedTodayUnique,\n    carpetTodayUnique,\n\n    cleanedToDateUnique,\n    carpetToDateUnique,\n\n    remainingCleaning,\n    remainingCarpet,\n\n    cleanedDuringProjectCount,\n    carpetDuringProjectCount,\n\n    cleanedTodayBreakdown: breakdownText(cleanedTodayByType),\n    carpetTodayBreakdown: breakdownText(carpetTodayByType),\n\n    cleaningPie,\n    carpetPie,\n\n    unitList\n  }\n}];\n"
+      },
+      "name": "Compute Daily Metrics1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        1296
+      ],
+      "id": "f26042ef-0171-4995-9d8d-0455b976360e"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $json;\n\n// Site / date\nconst siteName = r._meta?.siteName ?? r._meta?.site_name ?? \"Unknown Site\";\nconst siteId   = r._meta?.siteId   ?? r._meta?.site_id   ?? \"UNKNOWN\";\nconst date     = r.date ?? \"\";\n\n// Emails\nconst EMAILS = {\n  MANAGERS: \"himeltahsib2@gmail.com\",\n  CLEANERS: \"ridoytahim@gmail.com\",\n  CARPET:   \"ridoytahim@gmail.com\",\n};\n\nconst discrepancyNote = \"Please review and flag any discrepancies within 24–48 hours.\";\n\nfunction safe(n) { return Number.isFinite(Number(n)) ? Number(n) : 0; }\n\n// ✅ Gmail-safe table (inline styles on every cell)\nfunction unitTable(list) {\n  const rows = Array.isArray(list) ? list : [];\n  const body = rows.map(u =>\n    `<tr>\n      <td style=\"border:1px solid #ddd;padding:6px;\">${u.unit ?? \"-\"}</td>\n      <td style=\"border:1px solid #ddd;padding:6px;\">${u.unitType ?? \"-\"}</td>\n    </tr>`\n  ).join(\"\");\n\n  return `\n  <table style=\"border-collapse:collapse;font-family:Arial;font-size:12px;width:100%;border:1px solid #ddd;\">\n    <thead>\n      <tr style=\"background:#f2f2f2;\">\n        <th style=\"border:1px solid #ddd;padding:6px;text-align:left;\">Unit</th>\n        <th style=\"border:1px solid #ddd;padding:6px;text-align:left;\">Unit Type</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${body || `<tr><td style=\"border:1px solid #ddd;padding:6px;\">-</td><td style=\"border:1px solid #ddd;padding:6px;\">-</td></tr>`}\n    </tbody>\n  </table>`;\n}\n\n// Pull fields\nconst cleanedTodayUnique         = safe(r.cleanedTodayUnique);\nconst carpetTodayUnique          = safe(r.carpetTodayUnique);\nconst cleanedToDateUnique        = safe(r.cleanedToDateUnique);\nconst carpetToDateUnique         = safe(r.carpetToDateUnique);\nconst remainingCleaning          = safe(r.remainingCleaning);\nconst remainingCarpet            = safe(r.remainingCarpet);\nconst cleanedDuringProjectCount  = safe(r.cleanedDuringProjectCount);\nconst carpetDuringProjectCount   = safe(r.carpetDuringProjectCount);\n\nconst cleanedTodayBreakdown = r.cleanedTodayBreakdown ?? \"None\";\nconst carpetTodayBreakdown  = r.carpetTodayBreakdown ?? \"None\";\n\nconst cleaningPie = r.cleaningPie ?? \"\";\nconst carpetPie   = r.carpetPie ?? \"\";\n\nconst unitsHtml = unitTable(r.unitList);\n\n// ✅ DEBUG banner to prove each item is different\nconst debugBanner = (role, to) => `\n<div style=\"padding:8px;margin:0 0 10px 0;border:1px solid #ddd;background:#fff8c5;font-family:Arial;font-size:12px;\">\n  <b>DEBUG</b> — role: <b>${role}</b> | to: <b>${to}</b> | site: <b>${siteId}</b>\n</div>`;\n\n// Managers\nconst managersHtml =\ndebugBanner(\"MANAGERS\", EMAILS.MANAGERS) + `\n<h3>Daily Report — Property Managers</h3>\n<p><b>Site:</b> ${siteName} (${siteId})<br/>\n<b>Date:</b> ${date}</p>\n<p>${discrepancyNote}</p>\n\n<ul>\n  <li><b>Units cleaned today:</b> ${cleanedTodayUnique}</li>\n  <li><b>Units carpet-cleaned today:</b> ${carpetTodayUnique}</li>\n  <li><b>Units cleaned to date (unique):</b> ${cleanedToDateUnique}</li>\n  <li><b>Units carpet-cleaned to date (unique):</b> ${carpetToDateUnique}</li>\n  <li><b>Units remaining (not yet cleaned):</b> ${remainingCleaning}</li>\n  <li><b>Units remaining (not yet carpet-cleaned):</b> ${remainingCarpet}</li>\n</ul>\n\n<p><b>Pie Charts (Project To Date)</b></p>\n${cleaningPie ? `<img src=\"${cleaningPie}\" width=\"320\" />` : `<p>(No cleaning chart url)</p>`}\n${carpetPie ? `<img src=\"${carpetPie}\" width=\"320\" />` : `<p>(No carpet chart url)</p>`}\n\n<p><b>Unit List</b></p>\n${unitsHtml}\n`;\n\n// Cleaners\nconst cleanersHtml =\ndebugBanner(\"CLEANERS\", EMAILS.CLEANERS) + `\n<h3>Daily Report — Cleaners</h3>\n<p><b>Site:</b> ${siteName} (${siteId})<br/>\n<b>Date:</b> ${date}</p>\n<p>${discrepancyNote}</p>\n\n<ul>\n  <li><b>Total cleaned today (unique units):</b> ${cleanedTodayUnique}</li>\n  <li><b>Total cleanings during project (counts multiple cleanings):</b> ${cleanedDuringProjectCount}</li>\n  <li><b>Units remaining (not yet cleaned):</b> ${remainingCleaning}</li>\n  <li><b>Breakdown cleaned today by type:</b> ${cleanedTodayBreakdown}</li>\n</ul>\n\n<p><b>Unit List</b></p>\n${unitsHtml}\n`;\n\n// Carpet\nconst carpetHtml =\ndebugBanner(\"CARPET\", EMAILS.CARPET) + `\n<h3>Daily Report — Carpet Cleaners</h3>\n<p><b>Site:</b> ${siteName} (${siteId})<br/>\n<b>Date:</b> ${date}</p>\n<p>${discrepancyNote}</p>\n\n<ul>\n  <li><b>Total carpet-cleaned today (unique units):</b> ${carpetTodayUnique}</li>\n  <li><b>Total carpet cleanings during project (counts multiple cleanings):</b> ${carpetDuringProjectCount}</li>\n  <li><b>Units remaining (not yet carpet-cleaned):</b> ${remainingCarpet}</li>\n  <li><b>Breakdown carpet-cleaned today by type:</b> ${carpetTodayBreakdown}</li>\n</ul>\n\n<p><b>Unit List</b></p>\n${unitsHtml}\n`;\n\nreturn [\n  { json: { role: \"MANAGERS\", to: EMAILS.MANAGERS, subject: `Daily Report – ${siteName} – ${date}`, html: managersHtml } },\n  { json: { role: \"CLEANERS\",  to: EMAILS.CLEANERS,  subject: `Daily Cleaning Report – ${siteName} – ${date}`, html: cleanersHtml } },\n  { json: { role: \"CARPET\",   to: EMAILS.CARPET,   subject: `Daily Carpet Report – ${siteName} – ${date}`, html: carpetHtml } }\n];\n"
+      },
+      "name": "Build 3 Stakeholder Emails1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1296
+      ],
+      "id": "1b496f76-b78f-4b0c-bca7-7fc620082510"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sites = [\n  { siteId: \"PILOT_01\", siteName: \"Pilot Site 1\" },\n  { siteId: \"PILOT_02\", siteName: \"Pilot Site 2\" }\n];\nreturn sites.map(s => ({ json: s }));"
+      },
+      "name": "Get Sites2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        1296
+      ],
+      "id": "d63da0c6-be68-4269-a20b-e1b3170d5f5a"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Get current site from Split in Batches node\nconst site = $node[\"Split in Batches (Sites)1\"].json;\nconst siteId = (site.siteId ?? site.Site ?? \"\").toString().trim();\n\n// 2) Read all rows from previous node (Google Sheets)\nconst rows = $input.all().map(i => i.json);\n\n// Helpers\nfunction cleanKey(s) {\n  return String(s ?? \"\").toLowerCase().replace(/\\s+/g, \" \").trim();\n}\n\nfunction pickKey(row, wanted) {\n  const keys = Object.keys(row || {});\n  const w = cleanKey(wanted);\n  return keys.find(k => cleanKey(k) === w) || null;\n}\n\nfunction toBool(v) {\n  if (v === true) return true;\n  if (v === false) return false;\n  const s = String(v ?? \"\").trim().toLowerCase();\n  if ([\"true\", \"yes\", \"y\", \"1\", \"checked\", \"on\", \"done\", \"complete\", \"completed\"].includes(s)) return true;\n  if ([\"false\", \"no\", \"n\", \"0\", \"unchecked\", \"off\", \"pending\", \"\", \"empty\"].includes(s)) return false;\n  return false;\n}\n\n// Validate siteId\nif (!siteId) {\n  return [{ json: { _meta: { type: \"ERROR\", reason: \"Missing siteId\" }, site } }];\n}\n\n// Detect if sheet has a Site column (it doesn't in your screenshot)\nconst sample = rows[0] || {};\nconst kSite = pickKey(sample, \"Site\"); // null if not present\n\n// ✅ CRITICAL FIX:\n// If there is no Site column, assume this sheet is only for the pilot site and DO NOT FILTER.\nconst scopedRows = kSite\n  ? rows.filter(r => String(r[kSite] ?? \"\").trim() === siteId)\n  : rows;\n\n// Normalize boolean fields (keep dates as-is)\nconst normalized = scopedRows.map(r => ({\n  ...r,\n  \"Cleaning Complete\": toBool(r[\"Cleaning Complete\"]),\n  \"Carpet Cleaned\": toBool(r[\"Carpet Cleaned\"])\n}));\n\nif (normalized.length === 0) {\n  return [{ json: { _meta: { type: \"NODATA\" }, siteId, siteName: site.siteName ?? siteId, totalRows: rows.length } }];\n}\n\nreturn normalized.map(r => ({\n  json: {\n    ...r,\n    _meta: { type: \"DATA\", siteId, siteName: site.siteName ?? siteId }\n  }\n}));\n"
+      },
+      "name": "Filter Rows by Site2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        1296
+      ],
+      "id": "7e003298-22f3-4750-af06-c696621cd81b"
+    },
+    {
+      "parameters": {
+        "sendTo": "ridoytahim@gmail.com",
+        "subject": "={{ $json.subject }}\n",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "name": "cleaner complete",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        1152
+      ],
+      "id": "31c490e4-19d4-4fbc-b58b-3d4ca687aa2f",
+      "webhookId": "702dde5d-5451-4f2f-93c4-7e3f1506aa44",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "ridoytahim@gmail.com",
+        "subject": "={{ $json.subject }}\n",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "name": "cleaner carpet",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        1296
+      ],
+      "id": "5dcf2a92-3e40-4ed5-aef5-e8bfd92f7ec2",
+      "webhookId": "702dde5d-5451-4f2f-93c4-7e3f1506aa44",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "himeltahsib2@gmail.com",
+        "subject": "={{$json.subject}}",
+        "message": "={{$json.html}}",
+        "options": {}
+      },
+      "name": "manager",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        1456
+      ],
+      "id": "d3fd56dc-0b25-45cc-a476-4bfbf1ae32b4",
+      "webhookId": "2269ed14-171b-4014-940e-413fe6e3969e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Split in Batches (Sites)1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        496,
+        1296
+      ],
+      "id": "eea1c3ff-a54f-474d-8f6b-442e4650d1f0"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "name": "Weeks Trigger (8PM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        272,
+        864
+      ],
+      "id": "ec65f606-7990-4477-b4a6-aa0f2f7317ef"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Sites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Rows by Site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Summary": {
+      "main": [
+        [
+          {
+            "node": "Generate Charts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Charts": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Report": {
+      "main": [
+        [
+          {
+            "node": "HTML to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML to File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Check Site Has Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sites": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches": {
+      "main": [
+        [
+          {
+            "node": "Read Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Rows by Site": {
+      "main": [
+        [
+          {
+            "node": "Build Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Stakeholder Emails": {
+      "main": [
+        [
+          {
+            "node": "Send Stakeholder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Site Has Data": {
+      "main": [
+        [
+          {
+            "node": "Build Stakeholder Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches (Sites)": {
+      "main": [
+        [
+          {
+            "node": "Read Units Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Units Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter Rows by Site1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Daily Metrics": {
+      "main": [
+        [
+          {
+            "node": "Build 3 Stakeholder Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build 3 Stakeholder Emails": {
+      "main": [
+        [
+          {
+            "node": "Gmail Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Send": {
+      "main": [
+        []
+      ]
+    },
+    "Get Sites1": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches (Sites)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Rows by Site1": {
+      "main": [
+        [
+          {
+            "node": "Compute Daily Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Trigger (8PM)1": {
+      "main": [
+        [
+          {
+            "node": "Get Sites2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Units Sheet1": {
+      "main": [
+        [
+          {
+            "node": "Filter Rows by Site2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Daily Metrics1": {
+      "main": [
+        [
+          {
+            "node": "Build 3 Stakeholder Emails1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build 3 Stakeholder Emails1": {
+      "main": [
+        [
+          {
+            "node": "manager",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "cleaner complete",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "cleaner carpet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sites2": {
+      "main": [
+        [
+          {
+            "node": "Split in Batches (Sites)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Rows by Site2": {
+      "main": [
+        [
+          {
+            "node": "Compute Daily Metrics1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split in Batches (Sites)1": {
+      "main": [
+        [
+          {
+            "node": "Read Units Sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weeks Trigger (8PM)": {
+      "main": [
+        [
+          {
+            "node": "Get Sites1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7593f4a2-b647-43f8-898f-20f6ccae2f05",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d99051d732f3d689d05956d1236c81fcab08ae0dd2f3e1e02ab26327dbe65019"
+  },
+  "id": "2fjv7PAUBC0rpYRzeZ7BW",
+  "tags": []
+}

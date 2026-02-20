@@ -1,0 +1,497 @@
+{
+  "name": "Inbox Manageer",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2827941e-7c92-43f4-94c5-ece6bb20c3c3",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={\n    Subject: {{ $json.Subject }}\n    Content: {{ $json.snippet }}\n    Sender: {{ $json.From.split('<')[0].trim() }}\n    SenderName: \"{{ $json.From.split('<')[0].trim() }}\"\n}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Priority",
+              "description": "=This category covers high-value communication that requires an immediate response or action, typically originating from \"VIP\" contacts such as ridoytahim@gmail.comor your direct supervisor. You filter for these essential messages by matching the SenderEmail against your private list of priority contacts. The action is to trigger an immediate notification to your phone via Slack, Telegram, or Discord, often using the SenderName to personalize the alert so you know exactly who is reaching out (eg, \"Urgent message from Ridoy Tahim\"). The primary goal of this branch is to ensure zero delay for your most important professional and personal contacts, allowing you to react instantly to critical needs."
+            },
+            {
+              "category": "Monitoring",
+              "description": "=These are status updates or automated reports that track specific data points, frequently coming from services like Google Search Console ( sc-noreply@google.com), Google Calendar agendas ( calendar-notification@google.com), or system security alerts ( no-reply@accounts.google.com). They are identified in n8n by these specific service senders or fixed subject lines such as \"n8n gmail connected\" or \"Daily Agenda\". The action for n8n is to parse the incoming data —similar to how we checked for icy temperatures in Oslo—and only interrupt you with a notification if a specific threshold is met, like a critical security error or a server downtime event. This ensures that you are only notified when the data requires an actual human decision, rather than being overwhelmed by routine status pings."
+            },
+            {
+              "category": "Newsletter",
+              "description": "=These are non-urgent, informational emails that arrive regularly, such as Grammarly weekly progress reports ( info@send.grammarly.com), LinkedIn job digests ( newsletters-noreply@linkedin.com), or other industry subscriptions like Medium. In your n8n logic, you identify these by searching for keywords like \"Digest,\" \"Newsletter,\" or \"Weekly\" in the subject line or by matching these specific automated sender domains. Instead of sending an immediate alert, the action is to have n8n save the snippet and subject to a Google Sheet or \"Read Later\" database to keep your workspace clean while ensuring you don't miss important updates. The goal of this category is to batch-process informational content so it doesn't distract you during your active work hours."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "03bbd3ab-b1bc-409a-bd6b-3160a27f248b",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "10b942a9-e915-4964-9137-188313b2352c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ipuoitD9d0iqR1Pg",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_4699327767425321195"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -224
+      ],
+      "id": "aa0f4938-9873-4986-9e79-43a55b581da7",
+      "name": "Priority",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3589350174502957341"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -64
+      ],
+      "id": "0a2f3c01-e855-48c0-ba18-530f671f7c61",
+      "name": "Monitoring",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_2219645491484634932"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        112
+      ],
+      "id": "0fb55868-3bb3-4797-a460-e0b7f578ba10",
+      "name": "Newsletter",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        176
+      ],
+      "id": "514d527f-7e8f-4af3-be7d-c0421d1085d5",
+      "name": "Remove label from message",
+      "webhookId": "99cdf2ab-78f6-46fa-a8aa-0d59e7605bb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={\n    Subject: {{ $json.Subject }}\n    Content: {{ $json.snippet }}\n    Sender: {{ $json.From.split('<')[0].trim() }}\n    SenderName: \"{{ $json.From.split('<')[0].trim() }}\"\n}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Priority",
+              "description": "=This category covers high-value communication that requires an immediate response or action, typically originating from \"VIP\" contacts such as ridoytahim@gmail.comor your direct supervisor. You filter for these essential messages by matching the SenderEmail against your private list of priority contacts. The action is to trigger an immediate notification to your phone via Slack, Telegram, or Discord, often using the SenderName to personalize the alert so you know exactly who is reaching out (eg, \"Urgent message from Ridoy Tahim\"). The primary goal of this branch is to ensure zero delay for your most important professional and personal contacts, allowing you to react instantly to critical needs."
+            },
+            {
+              "category": "Monitoring",
+              "description": "=These are status updates or automated reports that track specific data points, frequently coming from services like Google Search Console ( sc-noreply@google.com), Google Calendar agendas ( calendar-notification@google.com), or system security alerts ( no-reply@accounts.google.com). They are identified in n8n by these specific service senders or fixed subject lines such as \"n8n gmail connected\" or \"Daily Agenda\". The action for n8n is to parse the incoming data —similar to how we checked for icy temperatures in Oslo—and only interrupt you with a notification if a specific threshold is met, like a critical security error or a server downtime event. This ensures that you are only notified when the data requires an actual human decision, rather than being overwhelmed by routine status pings."
+            },
+            {
+              "category": "Newsletter",
+              "description": "=These are non-urgent, informational emails that arrive regularly, such as Grammarly weekly progress reports ( info@send.grammarly.com), LinkedIn job digests ( newsletters-noreply@linkedin.com), or other industry subscriptions like Medium. In your n8n logic, you identify these by searching for keywords like \"Digest,\" \"Newsletter,\" or \"Weekly\" in the subject line or by matching these specific automated sender domains. Instead of sending an immediate alert, the action is to have n8n save the snippet and subject to a Google Sheet or \"Read Later\" database to keep your workspace clean while ensuring you don't miss important updates. The goal of this category is to batch-process informational content so it doesn't distract you during your active work hours."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1760,
+        128
+      ],
+      "id": "331cdbf8-c040-437a-98dd-3dfd34d6e1d6",
+      "name": "Text Classifier1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1824,
+        336
+      ],
+      "id": "00842fc6-789a-43aa-9a1a-cb9b01efaaf0",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ipuoitD9d0iqR1Pg",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_4699327767425321195"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1456,
+        -96
+      ],
+      "id": "ec4b95c3-ff36-4fb5-ab7f-e6442c2a3f23",
+      "name": "Priority1",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_3589350174502957341"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1456,
+        64
+      ],
+      "id": "c564b945-b4c6-4a53-bb8e-6b766e4adac5",
+      "name": "Monitoring1",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_2219645491484634932"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1456,
+        240
+      ],
+      "id": "b9e53e1d-2082-4b91-833d-4375cd5a5908",
+      "name": "Newsletter1",
+      "webhookId": "40c665fe-6adb-4023-b382-6049bfcd98b9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "INBOX"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1264,
+        304
+      ],
+      "id": "6b8790be-87cc-4f17-8033-1713e881b2c7",
+      "name": "Remove label from message1",
+      "webhookId": "99cdf2ab-78f6-46fa-a8aa-0d59e7605bb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2192,
+        128
+      ],
+      "id": "a506436f-80da-4dac-997d-8cb2ae5fee1b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 5,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1984,
+        128
+      ],
+      "id": "2efde1cb-36f3-4d41-a1cc-b42d07de0d30",
+      "name": "Get many messages",
+      "webhookId": "4af52d20-5589-400b-980a-f4b3fb986f2d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Monitoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Remove label from message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier1": {
+      "main": [
+        [
+          {
+            "node": "Priority1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Monitoring1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Newsletter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Newsletter1": {
+      "main": [
+        [
+          {
+            "node": "Remove label from message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ac3d844f-448e-43d6-b5c3-624170d30c87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d99051d732f3d689d05956d1236c81fcab08ae0dd2f3e1e02ab26327dbe65019"
+  },
+  "id": "ut0y_JGJsd5pONryAqY4q",
+  "tags": []
+}

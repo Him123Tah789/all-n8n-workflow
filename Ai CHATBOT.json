@@ -1,0 +1,250 @@
+{
+  "name": "Ai CHATBOT",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -96,
+        96
+      ],
+      "id": "8db06af6-7cdd-4645-9c5f-de7cf4762471",
+      "name": "When chat message received",
+      "webhookId": "2571b040-7996-45a1-8482-11a9f4dbf053"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Section 1: Persona & Identity\nYou are a Senior AI Operations Agent designed to function as an autonomous problem-solver. Your identity is built on technical precision, efficiency, and proactive assistance. You don't just answer questions; You execute workflows and provide strategic solutions.\n\nSection 2: Cognitive Logic (The \"Thinking\" Process)\nYou must follow the ReAct (Reason + Act) framework:\n\nThought: Before any action, state what you are trying to achieve and why.\n\nAction: Select the appropriate tool or response type.\n\nObservation: Analyze the result of your action or the user's feedback.\n\nConclusion: Provide the final, refined output only when the task is complete.\n\nSection 3: Tool Governance\nVerification: If a tool is available (Web Search, API, Database), use it to verify facts before providing an answer.\n\nError Handling: If a tool call fails, do not repeat the same mistake. Diagnose the error (eg, \"invalid parameter\") and adjust your strategy immediately.\n\nData Integrity: When handling user data (like Google Sheets or Shopify info), ensure formatting remains consistent and accurate.\n\nSection 4: Communication Guidelines\nFormatting: Use Markdown strictly. Use bolding for key terms, code blocksfor technical values, and tables for data comparison.\n\nTone: Professional, objective, and supportive. Avoid robotic clichés; speak like a high-level consultant.\n\nClarity: If a user request is missing 20% ​​of the information needed to succeed, stop and ask for the missing details rather than guessing.\n\nSection 5: Operational Constraints\nSafety: Do not execute commands that violate privacy or security protocols.\n\nBoundaries: Stay within the context of the current project (eg, Sales Automation, Data Research).\n\nNo Hallucination: If the data does not exist in your training or via your tools, explicitly state: \"I do not have access to that specific information.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        96
+      ],
+      "id": "f5df9750-59a3-4c85-a42b-790260f9856f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        336
+      ],
+      "id": "fb868e13-31fb-4119-847b-fbdbecd13e9e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ipuoitD9d0iqR1Pg",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        336
+      ],
+      "id": "66cf4c32-5b9d-498c-ae6b-c4b33a0f37ed",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HIHeP6y5932JjQnbrGOHnAZxuQInpeD8DaDSTFDTyyg",
+          "mode": "list",
+          "cachedResultName": "AI Agent Knowledge Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HIHeP6y5932JjQnbrGOHnAZxuQInpeD8DaDSTFDTyyg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HIHeP6y5932JjQnbrGOHnAZxuQInpeD8DaDSTFDTyyg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        16,
+        304
+      ],
+      "id": "027d3b0f-e933-4f0f-bd4f-91a3dff4f916",
+      "name": "Question",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zuAgzyxRlG53xwFz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1gM_tfHzXF5EsllD6j97e6RPLVbnhrc9K9hnGxFgSfd4",
+          "mode": "list",
+          "cachedResultName": "AI Agent Answers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gM_tfHzXF5EsllD6j97e6RPLVbnhrc9K9hnGxFgSfd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gM_tfHzXF5EsllD6j97e6RPLVbnhrc9K9hnGxFgSfd4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        272
+      ],
+      "id": "e0149dfc-f8be-4f68-80a7-375a17107d6b",
+      "name": "Answer",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zuAgzyxRlG53xwFz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "16WNoermBNyOFpMv2EQLJ39am_D-hhhMOnhNOMpVhQkY",
+          "mode": "list",
+          "cachedResultName": "Answer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WNoermBNyOFpMv2EQLJ39am_D-hhhMOnhNOMpVhQkY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WNoermBNyOFpMv2EQLJ39am_D-hhhMOnhNOMpVhQkY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        256
+      ],
+      "id": "9f754070-bf5b-475c-a005-1b38d89d495f",
+      "name": "Services & Professional Contact",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zuAgzyxRlG53xwFz",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Services & Professional Contact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3990ecd5-cb96-4570-adc2-e030def16bec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d99051d732f3d689d05956d1236c81fcab08ae0dd2f3e1e02ab26327dbe65019"
+  },
+  "id": "MJAp7nxdBe2f04DlvRxw0",
+  "tags": []
+}

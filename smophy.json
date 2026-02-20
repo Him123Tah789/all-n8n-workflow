@@ -1,0 +1,469 @@
+{
+  "name": "smophy",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        544,
+        560
+      ],
+      "id": "f889deb5-81ee-4ce1-9c43-3ab9b153cff2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        384
+      ],
+      "id": "3f8dd9ab-68f4-45b6-b50c-1895310c46af",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        384
+      ],
+      "id": "9eeaf050-f08b-4b76-88bf-9538ffd0125e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5d0eca8-7d8a-4068-b418-ae96ae0bd417",
+              "name": "Id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "fc0ce1b6-b24a-4f91-8697-0eab5a46e404",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "50b9f5ff-daa6-475a-b81f-cf099bab6291",
+              "name": "Post link",
+              "value": "={{ $json.link.href }}",
+              "type": "string"
+            },
+            {
+              "id": "3a7f4b5d-dac2-44f0-b75a-060bb29fc8f4",
+              "name": "Content",
+              "value": "={{ $json.content }}",
+              "type": "object"
+            },
+            {
+              "id": "82af6701-8cca-44bd-8091-8fe6ce036d98",
+              "name": "Author",
+              "value": "={{ $json.author.name }}",
+              "type": "string"
+            },
+            {
+              "id": "1f96f46b-321a-404f-bd45-51b6c79894cc",
+              "name": "Date",
+              "value": "={{ $json.updated }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        384
+      ],
+      "id": "ec08a630-6539-43f2-b5c4-5d966c6fafc4",
+      "name": "Post Info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1cab194e-fd4a-499d-89f3-9f306dd5bb5c",
+              "name": "keyword",
+              "value": "Software",
+              "type": "string"
+            },
+            {
+              "id": "7a7d392f-572a-4eb8-9626-900dd7766fa8",
+              "name": "mail",
+              "value": "himeltahsib2@gmail.com",
+              "type": "string"
+            },
+            {
+              "id": "fdcb0611-a192-4dba-8373-ac5ca2eb11c4",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        384
+      ],
+      "id": "ee1edb69-1d63-48f1-a3a0-4e9eae6ef298",
+      "name": "Search Parameters"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.reddit.com/search.rss?q={{ $json.keyword }}&sort=new",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1008,
+        384
+      ],
+      "id": "2c2cb36a-81e1-4b71-81a9-2b9da50646dd",
+      "name": "Redit Post scraping"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE",
+          "mode": "list",
+          "cachedResultName": "reddit_post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('Post Info').item.json.Id }}",
+            "Title": "={{ $('Post Info').item.json.Title }}",
+            "Post link": "={{ $('Post Info').item.json['Post link'] }}",
+            "Content": "={{ $('Post Info').item.json.Content }}",
+            "Author": "={{ $('Post Info').item.json.Author }}",
+            "Date": "={{ $('Post Info').item.json.Date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post link",
+              "displayName": "Post link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Author",
+              "displayName": "Author",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2112,
+        400
+      ],
+      "id": "ff4849d4-9607-4f74-bac9-9e0928185c1e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE",
+          "mode": "list",
+          "cachedResultName": "reddit_post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1664,
+        560
+      ],
+      "id": "5b70a6a0-3ac6-4497-a7fb-de79e7699408",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Id",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1904,
+        400
+      ],
+      "id": "8337f602-9b2f-499a-b561-40754f4205ca",
+      "name": "Check If there is dublicate value",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Search Parameters').item.json.mail }}",
+        "subject": "=Reddit Scraping Complete: {{ $items().length }} New Posts Found",
+        "message": "=The Reddit scraping workflow has finished successfully.  Total posts added to the sheet: {{ $items().length }}  You can view the updated spreadsheet. \n\nBest, \nYour n8n Bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2528,
+        400
+      ],
+      "id": "35f05323-9187-4911-b6bd-9185fff9cfb6",
+      "name": "Send a message",
+      "webhookId": "13e375fd-e37f-46c7-b8ca-280215f0ae69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        400
+      ],
+      "id": "fc5dba13-5bc0-41ab-896a-291068bfca63",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Post Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "Redit Post scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redit Post scraping": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Info": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check If there is dublicate value": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9af52060-0a81-42ea-af8a-77be6d8199e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d99051d732f3d689d05956d1236c81fcab08ae0dd2f3e1e02ab26327dbe65019"
+  },
+  "id": "rDI0ty49SjwHgndTjKFfU",
+  "tags": []
+}
