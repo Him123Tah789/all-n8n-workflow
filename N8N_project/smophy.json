@@ -1,0 +1,851 @@
+{
+  "name": "smophy",
+  "nodes": [
+    {
+<<<<<<< HEAD
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        544,
+        560
+      ],
+      "id": "f889deb5-81ee-4ce1-9c43-3ab9b153cff2",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+=======
+>>>>>>> f91db40 (Add README and initial files)
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+<<<<<<< HEAD
+        1200,
+        384
+      ],
+      "id": "3f8dd9ab-68f4-45b6-b50c-1895310c46af",
+=======
+        496,
+        208
+      ],
+      "id": "ea51de11-84c4-40b6-ad9b-833f9460807d",
+>>>>>>> f91db40 (Add README and initial files)
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+<<<<<<< HEAD
+        1440,
+        384
+      ],
+      "id": "9eeaf050-f08b-4b76-88bf-9538ffd0125e",
+=======
+        736,
+        208
+      ],
+      "id": "d399dc8a-a8b1-4933-a98f-4b99a60101db",
+>>>>>>> f91db40 (Add README and initial files)
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5d0eca8-7d8a-4068-b418-ae96ae0bd417",
+              "name": "Id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "fc0ce1b6-b24a-4f91-8697-0eab5a46e404",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "50b9f5ff-daa6-475a-b81f-cf099bab6291",
+              "name": "Post link",
+              "value": "={{ $json.link.href }}",
+              "type": "string"
+            },
+            {
+              "id": "3a7f4b5d-dac2-44f0-b75a-060bb29fc8f4",
+              "name": "Content",
+              "value": "={{ $json.content }}",
+              "type": "object"
+            },
+            {
+              "id": "82af6701-8cca-44bd-8091-8fe6ce036d98",
+              "name": "Author",
+              "value": "={{ $json.author.name }}",
+              "type": "string"
+            },
+            {
+              "id": "1f96f46b-321a-404f-bd45-51b6c79894cc",
+              "name": "Date",
+              "value": "={{ $json.updated }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+<<<<<<< HEAD
+        1648,
+        384
+      ],
+      "id": "ec08a630-6539-43f2-b5c4-5d966c6fafc4",
+=======
+        912,
+        208
+      ],
+      "id": "f8f7a0af-e42f-47e8-a6b3-6d0c1c3d8724",
+>>>>>>> f91db40 (Add README and initial files)
+      "name": "Post Info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1cab194e-fd4a-499d-89f3-9f306dd5bb5c",
+              "name": "keyword",
+<<<<<<< HEAD
+              "value": "Software",
+=======
+              "value": "recommendations for AI models",
+>>>>>>> f91db40 (Add README and initial files)
+              "type": "string"
+            },
+            {
+              "id": "7a7d392f-572a-4eb8-9626-900dd7766fa8",
+              "name": "mail",
+<<<<<<< HEAD
+              "value": "himeltahsib2@gmail.com",
+=======
+              "value": "smophy.allegro@gmail.com",
+>>>>>>> f91db40 (Add README and initial files)
+              "type": "string"
+            },
+            {
+              "id": "fdcb0611-a192-4dba-8373-ac5ca2eb11c4",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+<<<<<<< HEAD
+        784,
+        384
+      ],
+      "id": "ee1edb69-1d63-48f1-a3a0-4e9eae6ef298",
+=======
+        80,
+        208
+      ],
+      "id": "f93fcf37-c383-41dd-be3a-c3aa8b277f0d",
+>>>>>>> f91db40 (Add README and initial files)
+      "name": "Search Parameters"
+    },
+    {
+      "parameters": {
+<<<<<<< HEAD
+        "url": "=https://www.reddit.com/search.rss?q={{ $json.keyword }}&sort=new",
+=======
+        "url": "=https://www.reddit.com/search.rss?q={{ $json.keyword }}&sort=new&limit=100",
+>>>>>>> f91db40 (Add README and initial files)
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+<<<<<<< HEAD
+        1008,
+        384
+      ],
+      "id": "2c2cb36a-81e1-4b71-81a9-2b9da50646dd",
+=======
+        304,
+        208
+      ],
+      "id": "c66132e8-c971-4d32-a8ad-9a82c6557545",
+>>>>>>> f91db40 (Add README and initial files)
+      "name": "Redit Post scraping"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+<<<<<<< HEAD
+=======
+          "value": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Arkusz1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $json.Id }}",
+            "Title": "={{ $json.Title }}",
+            "Post link": "={{ $json['Post link'] }}",
+            "Content": "={{ $json.Content }}",
+            "Author": "={{ $json.Author }}",
+            "Date": "={{ $json.Date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Post link",
+              "displayName": "Post link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Author",
+              "displayName": "Author",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1408,
+        224
+      ],
+      "id": "43642784-f18e-4134-83d6-46d068826f4c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Eh7oZxONUIYWjvYS",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Arkusz1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        416
+      ],
+      "id": "597d1cf2-b7b2-4aa8-a1f5-55b88f6a699f",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Eh7oZxONUIYWjvYS",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Id",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1248,
+        224
+      ],
+      "id": "62b0abf6-ce2c-4f6c-a011-d621c8337d83",
+      "name": "Check If there is dublicate value",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Search Parameters').item.json.mail }}",
+        "subject": "=Reddit Scraping Complete: {{ $items().length }} New Posts Found",
+        "message": "=The Reddit scraping workflow has finished successfully. \n\nTotal posts added to the sheet: {{ $items().length }} \n\nYou can view the updated spreadsheet here:\nhttps://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0\n\nBest, \nYour n8n Bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        224
+      ],
+      "id": "a62166d9-48a9-4a2c-9c0b-c6e44a1e853f",
+      "name": "Send a message",
+      "webhookId": "13e375fd-e37f-46c7-b8ca-280215f0ae69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ONY7tdrh2sJg0jKV",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        224
+      ],
+      "id": "f49eccf9-91e4-49c1-a22e-8b23c8b46d5f",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0c387ce2-9113-4897-a29b-e33bae3fe2ac",
+              "leftValue": "={{ /(free AI model|free LLM|cheapest AI model|cheapest LLM|best free AI|best open source AI|recommend free AI|suggest cheap AI|looking for free models|searching for affordable AI|need cheap LLM|any free alternatives|good free AI tools|budget AI models|open source recommendations|free generative AI|cheapest chatbot|low cost AI generator|seeking free AI API|what free AI do you suggest|any suggestions for cheap AI|best budget AI|free or cheap AI|open source or free|affordable alternatives to|looking for good AI models|suggest good AI|recommendations for AI models)/i.test(($json.Title || '') + ' ' + ($json.Content?._ || '')) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        80
+      ],
+      "id": "419ba6b6-6513-4100-adeb-18d6e3d577fc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+>>>>>>> f91db40 (Add README and initial files)
+          "value": "1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE",
+          "mode": "list",
+          "cachedResultName": "reddit_post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+<<<<<<< HEAD
+            "Id": "={{ $('Post Info').item.json.Id }}",
+            "Title": "={{ $('Post Info').item.json.Title }}",
+            "Post link": "={{ $('Post Info').item.json['Post link'] }}",
+            "Content": "={{ $('Post Info').item.json.Content }}",
+            "Author": "={{ $('Post Info').item.json.Author }}",
+            "Date": "={{ $('Post Info').item.json.Date }}"
+=======
+            "Id": "={{ $json.Id }}",
+            "Title": "={{ $json.Title }}",
+            "Post link": "={{ $json['Post link'] }}",
+            "Content": "={{ $json.Content }}",
+            "Author": "={{ $json.Author }}",
+            "Date": "={{ $json.Date }}"
+>>>>>>> f91db40 (Add README and initial files)
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post link",
+              "displayName": "Post link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Author",
+              "displayName": "Author",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+<<<<<<< HEAD
+        2112,
+        400
+      ],
+      "id": "ff4849d4-9607-4f74-bac9-9e0928185c1e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+=======
+        1296,
+        80
+      ],
+      "id": "cd389bb7-96dd-4448-a08a-bae64828b4fd",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Eh7oZxONUIYWjvYS",
+          "name": "Google Sheets account"
+>>>>>>> f91db40 (Add README and initial files)
+        }
+      }
+    },
+    {
+      "parameters": {
+<<<<<<< HEAD
+        "documentId": {
+          "__rl": true,
+          "value": "1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE",
+          "mode": "list",
+          "cachedResultName": "reddit_post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kI07nge-Kt3ZO4mgC1Xtf1UQPnigmn9s9g9HwgHbBKE/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1664,
+        560
+      ],
+      "id": "5b70a6a0-3ac6-4497-a7fb-de79e7699408",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wfiBzZjC5Lh1eZF4",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Id",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1904,
+        400
+      ],
+      "id": "8337f602-9b2f-499a-b561-40754f4205ca",
+      "name": "Check If there is dublicate value",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Search Parameters').item.json.mail }}",
+        "subject": "=Reddit Scraping Complete: {{ $items().length }} New Posts Found",
+        "message": "=The Reddit scraping workflow has finished successfully.  Total posts added to the sheet: {{ $items().length }}  You can view the updated spreadsheet. \n\nBest, \nYour n8n Bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2528,
+        400
+      ],
+      "id": "35f05323-9187-4911-b6bd-9185fff9cfb6",
+      "name": "Send a message",
+      "webhookId": "13e375fd-e37f-46c7-b8ca-280215f0ae69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VjQfiZY1D0otIQr2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        400
+      ],
+      "id": "fc5dba13-5bc0-41ab-896a-291068bfca63",
+      "name": "Aggregate"
+=======
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        208
+      ],
+      "id": "2c0a77c7-fd05-4c0b-8e69-c160ef5144ee",
+      "name": "Schedule Trigger Every 5 mins"
+>>>>>>> f91db40 (Add README and initial files)
+    }
+  ],
+  "pinData": {},
+  "connections": {
+<<<<<<< HEAD
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+=======
+>>>>>>> f91db40 (Add README and initial files)
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Post Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "Redit Post scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redit Post scraping": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Info": {
+      "main": [
+        [
+          {
+<<<<<<< HEAD
+            "node": "Check If there is dublicate value",
+=======
+            "node": "If",
+>>>>>>> f91db40 (Add README and initial files)
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check If there is dublicate value": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+<<<<<<< HEAD
+=======
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger Every 5 mins": {
+      "main": [
+        [
+          {
+            "node": "Search Parameters",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        []
+      ]
+>>>>>>> f91db40 (Add README and initial files)
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+<<<<<<< HEAD
+  "versionId": "9af52060-0a81-42ea-af8a-77be6d8199e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d99051d732f3d689d05956d1236c81fcab08ae0dd2f3e1e02ab26327dbe65019"
+  },
+  "id": "rDI0ty49SjwHgndTjKFfU",
+=======
+  "versionId": "fa8d1f65-43c2-4b51-ac85-5b7ec8b0ce8c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37bfccb3a4da2f7fb7ab59912b698d53456b9dd291bf2de098603d3cad24ad22"
+  },
+  "id": "OOgx10bK8wAxHVGo",
+>>>>>>> f91db40 (Add README and initial files)
+  "tags": []
+}
