@@ -1,0 +1,552 @@
+{
+  "name": "smophy",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -304
+      ],
+      "id": "4f9c3380-f62a-491c-9d13-571bcecb8333",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -304
+      ],
+      "id": "425480e5-0353-483f-93f3-88f772fa02f9",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5d0eca8-7d8a-4068-b418-ae96ae0bd417",
+              "name": "Id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "fc0ce1b6-b24a-4f91-8697-0eab5a46e404",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "50b9f5ff-daa6-475a-b81f-cf099bab6291",
+              "name": "Post link",
+              "value": "={{ $json.link.href }}",
+              "type": "string"
+            },
+            {
+              "id": "3a7f4b5d-dac2-44f0-b75a-060bb29fc8f4",
+              "name": "Content",
+              "value": "={{ $json.content }}",
+              "type": "object"
+            },
+            {
+              "id": "82af6701-8cca-44bd-8091-8fe6ce036d98",
+              "name": "Author",
+              "value": "={{ $json.author.name }}",
+              "type": "string"
+            },
+            {
+              "id": "1f96f46b-321a-404f-bd45-51b6c79894cc",
+              "name": "Date",
+              "value": "={{ $json.updated }}",
+              "type": "string"
+            },
+            {
+              "id": "ddca613b-7d7c-4018-9652-ae024a9d84e1",
+              "name": "Keyword",
+              "value": "={{ $('Search Parameters').item.json.keyword }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        -304
+      ],
+      "id": "5fb7230f-b22c-481f-b20c-294b68eed917",
+      "name": "Post Info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1cab194e-fd4a-499d-89f3-9f306dd5bb5c",
+              "name": "keyword",
+              "value": "={{ $json.KW }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -304
+      ],
+      "id": "f1b31611-39e4-448b-9ea2-14ebd5fe90c4",
+      "name": "Search Parameters"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.reddit.com/search.rss?q={{ $json.keyword }}&sort=new",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -320,
+        -304
+      ],
+      "id": "de18e2fd-fa03-4717-b5f0-3ceb1bb6afc6",
+      "name": "Redit Post scraping"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        -112
+      ],
+      "id": "f800cf8d-3370-4322-95a4-5255f055b6f1",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JjHX2a4TvIByplue",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Id",
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        848,
+        -288
+      ],
+      "id": "e92cae77-e83d-4527-ba70-9b79972e181c",
+      "name": "Check If there is dublicate value",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "smophy.allegro@gmail.com",
+        "subject": "=Reddit Scraping Complete: {{ $items().length }} New Posts Found",
+        "message": "=The Reddit scraping workflow has finished successfully.  Total posts added to the sheet: {{ $items().length }}  You can view the updated spreadsheet. \n\nBest, \nYour n8n Bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        -288
+      ],
+      "id": "7b420474-41d7-48fd-972e-6344763c8f2d",
+      "name": "Send a message",
+      "webhookId": "13e375fd-e37f-46c7-b8ca-280215f0ae69",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pozX47vPnRhQ4x4m",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -288
+      ],
+      "id": "3d6bc520-2c75-4794-8f75-98e894e1b51e",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1008,
+        -304
+      ],
+      "id": "c97a4331-203e-4d85-b0dc-e58448a03921",
+      "name": "Schedule Trigger every 10 minute"
+    },
+    {
+      "parameters": {
+        "jsCode": "//By matching title and body\nconst daysAgo = 7; // Only keep posts from the last 7 days\n// Get current keyword\nconst keyword = $('Search Parameters').first().json.keyword.toLowerCase();\nconst words = keyword.split(' ').filter(w => w.length > 2);\n// Calculate cutoff date\nconst now = new Date();\nconst cutoffDate = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));\nreturn items.filter(item => {\n  // --- DATE FILTER ---\n  const postDate = new Date(item.json.Date);\n  if (postDate < cutoffDate) return false; // Too old, skip\n  // --- RELEVANCE FILTER ---\n  const title = (item.json.Title || '').toLowerCase();\n  const content = JSON.stringify(item.json.Content || '').toLowerCase();\n  const matchCount = words.filter(word => \n    title.includes(word) || content.includes(word)\n  ).length;\n  return matchCount >= Math.min(2, words.length);\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -304
+      ],
+      "id": "9d737c5e-6373-4354-97e0-bd2ae292ae0b",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1434746797,
+          "mode": "list",
+          "cachedResultName": "keyword",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit#gid=1434746797"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        -304
+      ],
+      "id": "579ad721-e76e-4fd5-b571-7d772ca3bd8e",
+      "name": "keyword extraction",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JjHX2a4TvIByplue",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Hg0zYhkAVP3BwTu4PSMaNKD2Dpl4xynyzDzJE9UKsxU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('Post Info').item.json.Id }}",
+            "Title": "={{ $('Post Info').item.json.Title }}",
+            "Post link": "={{ $('Post Info').item.json['Post link'] }}",
+            "Content": "={{ $('Post Info').item.json.Content }}",
+            "Author": "={{ $('Post Info').item.json.Author }}",
+            "Date": "={{ $('Post Info').item.json.Date }}",
+            "Keyword ": "={{ $('Post Info').item.json.Keyword }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post link",
+              "displayName": "Post link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Author",
+              "displayName": "Author",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keyword ",
+              "displayName": "Keyword ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        -288
+      ],
+      "id": "fc0eb81f-365b-4335-87e6-46422a4ef8a7",
+      "name": "Append post",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JjHX2a4TvIByplue",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Post Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "Redit Post scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redit Post scraping": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Info": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check If there is dublicate value": {
+      "main": [
+        [
+          {
+            "node": "Append post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger every 10 minute": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "keyword extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Check If there is dublicate value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "keyword extraction": {
+      "main": [
+        [
+          {
+            "node": "Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append post": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "de5fc3a5-5c55-49a1-aa36-84cafa94d1e5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2263730b20ca955b5ec45a3f80f1d7dbbc21b346294c36c904ea923c57f68bb3"
+  },
+  "id": "wSXRQ6nrvs3oFSCn",
+  "tags": []
+}
